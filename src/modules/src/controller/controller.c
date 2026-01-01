@@ -10,6 +10,7 @@
 #include "controller_lee.h"
 #include "controller_rotvel.h"
 #include "controller_forcetorque.h"
+#include "controller_rl.h"
 
 #include "autoconf.h"
 
@@ -34,6 +35,7 @@ static ControllerFcns controllerFunctions[] = {
   {.init = controllerLeeFirmwareInit, .test = controllerLeeFirmwareTest, .update = controllerLeeFirmware, .name = "Lee"},
   {.init = controllerRotorVelocityInit, .test = controllerRotorVelocityTest, .update = controllerRotorVelocity, .name = "RotorVelocity"},
   {.init = controllerForceTorqueInit, .test = controllerForceTorqueTest, .update = controllerForceTorque, .name = "ForceTorque"},
+  {.init = controllerRLInit, .test = controllerRLTest, .update = controllerRL, .name = "RL"},
   #ifdef CONFIG_CONTROLLER_OOT
   {.init = controllerOutOfTreeInit, .test = controllerOutOfTreeTest, .update = controllerOutOfTree, .name = "OutOfTree"},
   #endif
