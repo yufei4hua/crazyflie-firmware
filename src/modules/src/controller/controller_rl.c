@@ -106,10 +106,10 @@ static void dense_forward(const float* x, int in_dim,
 // Observation construction
 // =========================
 // Python obs dict:
-//   pos (3), quat (4), vel (3), ang_vel (3), difference_to_goal (3), last_actions (4)
+//   pos (3), quat (4), vel (3), ang_vel (3), last_actions (4)
 // After FlattenObs with alphabetical keys:
-//   "ang_vel"(3), "difference_to_goal"(3), "last_actions"(4), "pos"(3), "quat"(4), "vel"(3)  => 20 dims
-static void build_obs_20(float obs[20],
+//   "ang_vel"(3), "last_actions"(4), "pos"(3), "quat"(4), "vel"(3)  => 17 dims
+static void build_obs(float obs[17],
                          const setpoint_t* setpoint,
                          const sensorData_t* sensors,
                          const state_t* state) {
@@ -121,10 +121,10 @@ static void build_obs_20(float obs[20],
   const float goal_vy = setpoint->velocity.y;
   const float goal_vz = setpoint->velocity.z;
 
-  // pos, vel from state (same unit as python)
-  const float px = state->position.x;
-  const float py = state->position.y;
-  const float pz = state->position.z;
+  // pos, vel from state (apply commands as offsets)
+  const float px = state->position.x - goal_x;
+  const float py = state->position.y - goal_y;
+  const float pz = state->position.z - goal_z;
 
   const float vx = state->velocity.x - goal_vx;
   const float vy = state->velocity.y - goal_vy;
@@ -141,43 +141,33 @@ static void build_obs_20(float obs[20],
   const float wy = sensors->gyro.y * DEG2RAD;
   const float wz = sensors->gyro.z * DEG2RAD;
 
-  // difference_to_goal = goal_pos - pos
-  const float dx = goal_x - px;
-  const float dy = goal_y - py;
-  const float dz = goal_z - pz;
-
   // Fill in strict alphabetical order:
   // 0..2   ang_vel
   obs[0] = wx;
   obs[1] = wy;
   obs[2] = wz;
 
-  // 3..5   difference_to_goal
-  obs[3] = dx;
-  obs[4] = dy;
-  obs[5] = dz;
+  // 3..6   last_actions (policy output before scaling)
+  obs[3] = g_last_actions[0];
+  obs[4] = g_last_actions[1];
+  obs[5] = g_last_actions[2];
+  obs[6] = g_last_actions[3];
 
-  // 6..9   last_actions (policy output before scaling)
-  obs[6] = g_last_actions[0];
-  obs[7] = g_last_actions[1];
-  obs[8] = g_last_actions[2];
-  obs[9] = g_last_actions[3];
+  // 7..9 pos
+  obs[7] = px;
+  obs[8] = py;
+  obs[9] = pz;
 
-  // 10..12 pos
-  obs[10] = px;
-  obs[11] = py;
-  obs[12] = pz;
+  // 10..13 quat (xyzw)
+  obs[10] = qx;
+  obs[11] = qy;
+  obs[12] = qz;
+  obs[13] = qw;
 
-  // 13..16 quat (xyzw)
-  obs[13] = qx;
-  obs[14] = qy;
-  obs[15] = qz;
-  obs[16] = qw;
-
-  // 17..19 vel
-  obs[17] = vx;
-  obs[18] = vy;
-  obs[19] = vz;
+  // 14..16 vel
+  obs[14] = vx;
+  obs[15] = vy;
+  obs[16] = vz;
 }
 
 // =========================
@@ -223,13 +213,14 @@ bool controllerRLTest(void) {
 void controllerRL(control_t *control, const setpoint_t *setpoint, const sensorData_t *sensors, const state_t *state, const uint32_t tick) {
   control->controlMode = controlModePWM;
 
-  if (!RATE_DO_EXECUTE(500, tick)) {
+  // Run at 500 Hz
+  if (!RATE_DO_EXECUTE(100, tick)) {
     return;
   }
 
-  // 1. Build observation vector (20-dim)
-  float obs[20];
-  build_obs_20(obs, setpoint, sensors, state);
+  // 1. Build observation vector (17-dim)
+  float obs[17];
+  build_obs(obs, setpoint, sensors, state);
 
   // 2. Policy forward -> rotor_vel actions in [-1, 1]
   float normalized_rotor_vel[4];
