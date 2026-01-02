@@ -37,6 +37,8 @@
 
 // The new controller goes here --------------------------------------------
 // Move the includes to the the top of the file if you want to
+#include "param.h"
+#include "log.h"
 #include "controller.h"
 #include "rl_policy_params.h"
 
@@ -44,6 +46,10 @@
 // =========================
 // Drone parameters (const)
 // =========================
+
+// Controller Parameters
+static const int ctrl_freq_hz = 100;  // controller frequency
+
 // Action scaling: policy output in [-1, 1] -> rotor RPM in [ROTOR_RPM_MIN, ROTOR_RPM_MAX]
 static const float ROTOR_RPM_MIN = 6962.07f;
 static const float ROTOR_RPM_MAX = 21302.27f;
@@ -203,7 +209,10 @@ static void policy_forward(const float obs[20], float action_out[4]) {
 // Public API
 // =========================
 void controllerRLInit(void) {
-  return;
+  g_last_actions[0] = 0.25f;
+  g_last_actions[1] = 0.25f;
+  g_last_actions[2] = 0.25f;
+  g_last_actions[3] = 0.25f;
 }
 
 bool controllerRLTest(void) {
@@ -250,3 +259,22 @@ void controllerRL(control_t *control, const setpoint_t *setpoint, const sensorDa
     control->normalizedForces[i] = pwm_norm;
   }
 }
+
+
+/**
+ * Tunning variables for the full state RL Controller
+ */
+PARAM_GROUP_START(ctrlRL)
+PARAM_ADD_CORE(PARAM_INT16 | PARAM_PERSISTENT, freq, &ctrl_freq_hz)
+PARAM_GROUP_STOP(ctrlRL)
+
+/**
+ * Logging variables for the command and reference signals for the
+ * RL controller
+ */
+LOG_GROUP_START(ctrlRL)
+LOG_ADD(LOG_FLOAT, action_1, &g_last_actions[0])
+LOG_ADD(LOG_FLOAT, action_2, &g_last_actions[1])
+LOG_ADD(LOG_FLOAT, action_3, &g_last_actions[2])
+LOG_ADD(LOG_FLOAT, action_4, &g_last_actions[3])
+LOG_GROUP_STOP(ctrlRL)
