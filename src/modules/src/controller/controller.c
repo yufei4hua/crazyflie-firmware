@@ -11,6 +11,7 @@
 #include "controller_rotvel.h"
 #include "controller_forcetorque.h"
 #include "controller_rl.h"
+#include "controller_throw.h"
 
 #include "autoconf.h"
 
@@ -36,6 +37,7 @@ static ControllerFcns controllerFunctions[] = {
   {.init = controllerRotorVelocityInit, .test = controllerRotorVelocityTest, .update = controllerRotorVelocity, .name = "RotorVelocity"},
   {.init = controllerForceTorqueInit, .test = controllerForceTorqueTest, .update = controllerForceTorque, .name = "ForceTorque"},
   {.init = controllerRLInit, .test = controllerRLTest, .update = controllerRL, .name = "RL"},
+  {.init = controllerThrowInit, .test = controllerThrowTest, .update = controllerThrow, .name = "Throw"},
   #ifdef CONFIG_CONTROLLER_OOT
   {.init = controllerOutOfTreeInit, .test = controllerOutOfTreeTest, .update = controllerOutOfTree, .name = "OutOfTree"},
   #endif
