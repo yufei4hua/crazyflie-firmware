@@ -49,7 +49,7 @@
 // =========================
 
 // Controller Parameters
-static const int ctrl_freq_hz = 250;  // controller frequency (matches rotor_vel training: freq=250)
+static const int ctrl_freq_hz = 500;  // controller frequency (matches rotor_vel training: freq=250)
 
 // Action scaling: policy output in [-1, 1] -> rotor RPM in [ROTOR_RPM_MIN, ROTOR_RPM_MAX]
 static const float ROTOR_RPM_MIN = 6962.07f;

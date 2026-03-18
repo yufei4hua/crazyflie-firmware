@@ -38,6 +38,7 @@ typedef enum {
   ControllerTypeRotorVelocity,
   ControllerTypeForceTorque,
   ControllerTypeRL,
+  ControllerTypeThrow,
 #ifdef CONFIG_CONTROLLER_OOT
   ControllerTypeOot,
 #endif
