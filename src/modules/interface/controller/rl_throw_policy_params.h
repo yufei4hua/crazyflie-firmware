@@ -9,14 +9,15 @@
 // - hidden_size  : 8
 // - dense_layers : 3 (including output Dense)
 // - total_params : 236 (kernel+bias only)
-// - param_bytes  : 944 bytes (float32)
-// - param_size   : 0.922 KiB (float32)
+// - param_bytes  : 472 bytes (float16)
+// - param_size   : 0.461 KiB (float16)
 //
 // Storage convention:
 // - Flax Dense kernel shape is (in_features, out_features)
 // - We store actor_Wk as row-major flattened kernel:
 //     actor_Wk[i*out + j] == kernel[i, j]
 // - Bias stored as actor_bk[j]
+// - Parameters stored as float16 (__fp16) to save bandwidth over CRTP
 //
 
 #ifndef ACTOR_PARAMS_H
@@ -32,12 +33,12 @@ static const int ACTOR_HIDDEN_SIZE = 8;
 static const int ACTOR_NUM_LAYERS  = 2;
 static const int ACTOR_NUM_DENSE   = 3;
 static const int ACTOR_TOTAL_PARAMS = 236;
-static const int ACTOR_PARAM_BYTES  = 944;
+static const int ACTOR_PARAM_BYTES  = 472;
 
 // Layer 0: in=15, out=8
 static const int ACTOR_L0_IN  = 15;
 static const int ACTOR_L0_OUT = 8;
-static const float actor_W0[120] = {
+static __fp16 actor_W0[120] = {
   0.0933803171f, -0.150680482f, 0.0948955491f, -0.0257391427f, 0.119819954f, -0.166495651f, 0.111995257f, 0.160564721f,
   0.107482187f, -0.0635466576f, 0.108216658f, 0.105780505f, 0.0600828864f, -0.00239308784f, -0.123719931f, -0.165499553f,
   -0.202189535f, 0.0528402105f, -0.0803474411f, -0.0499763452f, 0.257260531f, -0.108573072f, 0.085276559f, -0.184450239f,
@@ -54,14 +55,14 @@ static const float actor_W0[120] = {
   0.675088048f, -0.529168427f, -0.290120244f, -1.376845f, -0.368379325f, -0.693242431f, -0.61513406f, -0.942083359f,
   -0.0448452458f, 0.206549436f, 0.138998345f, -0.114055626f, 0.0473916754f, 0.0352033116f, 0.0674361661f, -0.159035161f
 };
-static const float actor_b0[8] = {
+static __fp16 actor_b0[8] = {
   0.340143323f, 0.0772096515f, 0.0992970914f, -0.0248187799f, 0.216118097f, -0.161128059f, 0.0196646918f, -0.092543371f
 };
 
 // Layer 1: in=8, out=8
 static const int ACTOR_L1_IN  = 8;
 static const int ACTOR_L1_OUT = 8;
-static const float actor_W1[64] = {
+static __fp16 actor_W1[64] = {
   -0.615363419f, -0.252776742f, -0.552840948f, -0.431879282f, -0.233975276f, 0.0655638874f, -0.165143654f, 0.907790363f,
   -0.0802338943f, 0.292185873f, 0.77696389f, -0.708083689f, -0.117764853f, -0.810938597f, 0.186787665f, -0.0535838604f,
   0.504776657f, 0.188001886f, -1.14174414f, 0.636992872f, -0.0099886898f, -0.629071832f, 0.332914591f, 1.26880622f,
@@ -71,20 +72,20 @@ static const float actor_W1[64] = {
   -0.783809483f, -0.300733328f, 0.690819442f, 0.742336512f, -0.136083737f, -0.332239926f, -1.15552998f, 0.423774719f,
   0.277686685f, -0.385120392f, 0.729705393f, 0.527098119f, -0.00105590129f, 0.394078702f, -0.0965481997f, 0.547446966f
 };
-static const float actor_b1[8] = {
+static __fp16 actor_b1[8] = {
   -0.229307756f, 0.26245153f, 0.120768011f, -0.209858686f, 0.0f, -0.124657676f, 0.0225581694f, -0.216388777f
 };
 
 // Layer 2: in=8, out=4
 static const int ACTOR_L2_IN  = 8;
 static const int ACTOR_L2_OUT = 4;
-static const float actor_W2[32] = {
+static __fp16 actor_W2[32] = {
   0.0060067391f, -0.0843299851f, -0.0544795692f, 0.0890930071f, -0.000450878957f, -0.261834264f, 0.041843839f, 0.766159117f,
   -0.347642869f, 0.304674417f, 0.797229648f, -0.123516478f, 0.71623826f, 0.184196502f, -0.00489193527f, -0.396776915f,
   -0.000372260285f, 0.00542257167f, 0.00535969716f, -0.000834222243f, -0.139684215f, 0.0936435685f, 0.0362893268f, -0.00114094059f,
   0.396674663f, -0.542875588f, -0.00146982528f, 0.41010651f, -0.115211137f, 0.586344063f, -0.557827711f, 0.256310463f
 };
-static const float actor_b2[4] = {
+static __fp16 actor_b2[4] = {
   -0.118271604f, 0.000914226985f, 0.245986357f, 0.0257043671f
 };
 
