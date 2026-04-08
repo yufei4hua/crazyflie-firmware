@@ -41,8 +41,9 @@
 #include "log.h"
 #include "controller.h"
 #include "controller_throw.h"
+#include "platform_defaults.h"
+#include "math3d.h"
 #include "rl_throw_policy_params.h"
-
 
 // =========================
 // Drone parameters (const)
@@ -51,19 +52,19 @@
 // Controller Parameters
 static int ctrl_freq_hz = 500;  // controller frequency (matches rotor_vel training: freq=250)
 
-// Action scaling: policy output in [-1, 1] -> rotor RPM in [ROTOR_RPM_MIN, ROTOR_RPM_MAX]
-static const float ROTOR_RPM_MIN = 6962.07f;
-static const float ROTOR_RPM_MAX = 21302.27f;
-static const float ROTOR_RPM_SCALE = (ROTOR_RPM_MAX - ROTOR_RPM_MIN) * 0.5f;
-static const float ROTOR_RPM_MEAN  = (ROTOR_RPM_MAX + ROTOR_RPM_MIN) * 0.5f;
-
 // thrust = a0 + a1 * rpm + a2 * rpm^2
+// Values are valid for the cf21B_500
 static const float RPM2THRUST_A0 = 0.0f;
 static const float RPM2THRUST_A1 = -3.133427287299859e-7f;
 static const float RPM2THRUST_A2 =  4.407354891648379e-10f;
 
-// Max thrust used for normalization: pwm_norm = force / thrust_max
-static const float THRUST_MAX = 0.2f;
+// Action scaling: policy output in [-1, 1] -> rotor RPM in [ROTOR_RPM_MIN, ROTOR_RPM_MAX]
+// Values are valid for the cf21B_500
+// TODO: Compute from known min/max thrust and the thrust curve instead of hardcoding
+static const float ROTOR_RPM_MIN = 6962.07f;
+static const float ROTOR_RPM_MAX = 21302.27f;
+static const float ROTOR_RPM_SCALE = (ROTOR_RPM_MAX - ROTOR_RPM_MIN) * 0.5f;
+static const float ROTOR_RPM_MEAN  = (ROTOR_RPM_MAX + ROTOR_RPM_MIN) * 0.5f;
 
 // Unit conversion
 static const float DEG2RAD = 0.01745329251994329577f;  // pi/180
@@ -255,7 +256,6 @@ void controllerThrow(control_t *control, const setpoint_t *setpoint, const senso
     control->normalizedForces[i] = pwm_norm;
   }
 }
-
 
 /**
  * Tuning variables for the throw RL controller
