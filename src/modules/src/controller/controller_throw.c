@@ -53,16 +53,34 @@
 static int ctrl_freq_hz = 500;  // controller frequency (matches rotor_vel training: freq=250)
 
 // thrust = a0 + a1 * rpm + a2 * rpm^2
-// Values are valid for the cf21B_500
+// Values are selected at compile time by platform macro
+#if defined(CONFIG_PLATFORM_CF21BL)
 static const float RPM2THRUST_A0 = 0.0f;
 static const float RPM2THRUST_A1 = -3.133427287299859e-7f;
 static const float RPM2THRUST_A2 =  4.407354891648379e-10f;
+#elif defined(CONFIG_PLATFORM_CF2)
+static const float RPM2THRUST_A0 = 0.0f;
+static const float RPM2THRUST_A1 = -5.382196214637237e-7f;
+static const float RPM2THRUST_A2 =  2.4582929831265485e-10f;
+#else
+static const float RPM2THRUST_A0 = 0.0f;
+static const float RPM2THRUST_A1 = -3.133427287299859e-7f;
+static const float RPM2THRUST_A2 =  4.407354891648379e-10f;
+#endif
 
 // Action scaling: policy output in [-1, 1] -> rotor RPM in [ROTOR_RPM_MIN, ROTOR_RPM_MAX]
-// Values are valid for the cf21B_500
+// Values are selected at compile time by platform macro
 // TODO: Compute from known min/max thrust and the thrust curve instead of hardcoding
+#if defined(CONFIG_PLATFORM_CF21BL)
 static const float ROTOR_RPM_MIN = 6962.07f;
 static const float ROTOR_RPM_MAX = 21302.27f;
+#elif defined(CONFIG_PLATFORM_CF2)
+static const float ROTOR_RPM_MIN = 7220.81f;
+static const float ROTOR_RPM_MAX = 22093.97f;
+#else
+static const float ROTOR_RPM_MIN = 6962.07f;
+static const float ROTOR_RPM_MAX = 21302.27f;
+#endif
 static const float ROTOR_RPM_SCALE = (ROTOR_RPM_MAX - ROTOR_RPM_MIN) * 0.5f;
 static const float ROTOR_RPM_MEAN  = (ROTOR_RPM_MAX + ROTOR_RPM_MIN) * 0.5f;
 
