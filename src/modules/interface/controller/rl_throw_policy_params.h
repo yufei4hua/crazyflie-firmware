@@ -19,8 +19,8 @@
 // - Parameters stored as float16 (__fp16) to save bandwidth over CRTP
 //
 
-#ifndef ACTOR_PARAMS_H
-#define ACTOR_PARAMS_H
+#ifndef ACTOR_THROW_PARAMS_H
+#define ACTOR_THROW_PARAMS_H
 
 #ifdef __cplusplus
 extern "C"
