@@ -351,6 +351,7 @@ void paramWriteProcess(CRTPPacket *p)
   uint16_t id;
   int index;
   int cursor = 0;
+  int n_params = 0;
   while (cursor + 2 <= p->size) {
     memcpy(&id, &p->data[cursor], 2);
     index = variableGetIndex(id);
@@ -366,6 +367,7 @@ void paramWriteProcess(CRTPPacket *p)
       return;
 
     cursor += 2 + paramGetLen(index);
+    n_params++;  
   }
 
   // Second pass: set all params and notify
@@ -378,7 +380,9 @@ void paramWriteProcess(CRTPPacket *p)
     paramNotifyChanged(index);
   }
 
-  crtpSendPacketBlock(p);
+  if (n_params < 2) {
+    crtpSendPacketBlock(p);
+  }
 }
 
 static void paramNotifyChanged(int index) {
