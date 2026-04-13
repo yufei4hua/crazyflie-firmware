@@ -60,7 +60,7 @@
 #define LAST_ACTION_BUFFER_LEN (RATIO * N_LAST_ACTIONS)
 #define LAST_ACTIONS_OBS_DIM (N_LAST_ACTIONS * ACT_DIM)
 
-#define USE_QUAT 1
+#define USE_QUAT 0
 
 // Observation layout indices
 #define OBS_IDX_ANG_VEL 0
